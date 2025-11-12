@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>StaticsGame - Gerenciamento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fb;
+            color: #333;
+            margin: 40px;
+        }
+        h1 {
+            color: #0066cc;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 5px;
+        }
+        section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        input {
+            padding: 6px;
+            margin-right: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #004999;
+        }
+    </style>
+</head>
+<body>
+
+<h1>StaticsGame - Painel de Gerenciamento</h1>
+
+<!-- Produtos -->
+<section>
+    <h2>Produtos</h2>
+
+    <div>
+        <input type="text" id="produtoNome" placeholder="Nome">
+        <input type="text" id="produtoDescricao" placeholder="Descrição">
+        <input type="number" id="produtoPreco" placeholder="Preço">
+        <button onclick="criarProduto()">Adicionar Produto</button>
+    </div>
+
+    <table id="tabelaProdutos">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
+
+<!-- Filmes -->
+<section>
+    <h2>Filmes</h2>
+
+    <div>
+        <input type="text" id="filmeTitulo" placeholder="Título">
+        <input type="text" id="filmeDiretor" placeholder="Diretor">
+        <input type="number" id="filmeAno" placeholder="Ano">
+        <input type="text" id="filmeGenero" placeholder="Gênero">
+        <button onclick="criarFilme()">Adicionar Filme</button>
+    </div>
+
+    <table id="tabelaFilmes">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Diretor</th>
+            <th>Ano</th>
+            <th>Gênero</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
+
+<script>
+    const API = '/api';
+
+    // ======= PRODUTOS =======
+    async function carregarProdutos() {
+        const res = await fetch(`${API}/produtos`);
+        const produtos = await res.json();
+        const tbody = document.querySelector('#tabelaProdutos tbody');
+        tbody.innerHTML = '';
+        produtos.forEach(p => {
+            tbody.innerHTML += `
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.nome}</td>
+            <td>${p.descricao}</td>
+            <td>R$ ${p.preco.toFixed(2)}</td>
+            <td><button onclick="deletarProduto(${p.id})">Excluir</button></td>
+          </tr>`;
+        });
+    }
+
+    async function criarProduto() {
+        const nome = document.getElementById('produtoNome').value;
+        const descricao = document.getElementById('produtoDescricao').value;
+        const preco = parseFloat(document.getElementById('produtoPreco').value);
+        if (!nome || !descricao || isNaN(preco)) {
+            alert('Preencha todos os campos!');
+            return;
+        }
+        await fetch(`${API}/produtos`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nome, descricao, preco })
+        });
+        carregarProdutos();
+    }
+
+    async function deletarProduto(id) {
+        await fetch(`${API}/produtos/${id}`, { method: 'DELETE' });
+        carregarProdutos();
+    }
+
+    // ======= FILMES =======
+    async function carregarFilmes() {
+        const res = await fetch(`${API}/filmes`);
+        const filmes = await res.json();
+        const tbody = document.querySelector('#tabelaFilmes tbody');
+        tbody.innerHTML = '';
+        filmes.forEach(f => {
+            tbody.innerHTML += `
+          <tr>
+            <td>${f.id}</td>
+            <td>${f.titulo}</td>
+            <td>${f.diretor}</td>
+            <td>${f.anoLancamento}</td>
+            <td>${f.genero}</td>
+            <td><button onclick="deletarFilme(${f.id})">Excluir</button></td>
+          </tr>`;
+        });
+    }
+
+    async function criarFilme() {
+        const titulo = document.getElementById('filmeTitulo').value;
+        const diretor = document.getElementById('filmeDiretor').value;
+        const anoLancamento = parseInt(document.getElementById('filmeAno').value);
+        const genero = document.getElementById('filmeGenero').value;
+        if (!titulo || !diretor || !anoLancamento || !genero) {
+            alert('Preencha todos os campos!');
+            return;
+        }
+        await fetch(`${API}/filmes`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ titulo, diretor, anoLancamento, genero })
+        });
+        carregarFilmes();
+    }
+
+    async function deletarFilme(id) {
+        await fetch(`${API}/filmes/${id}`, { method: 'DELETE' });
+        carregarFilmes();
+    }
+
+    // ======= INICIALIZAÇÃO =======
+    carregarProdutos();
+    carregarFilmes();
+</script>
+
+</body>
+</html>
