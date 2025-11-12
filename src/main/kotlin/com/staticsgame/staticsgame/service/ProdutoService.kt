@@ -11,7 +11,6 @@ class ProdutoService(private val produtoRepository: ProdutoRepository) {
         val produtoExistente = produtoRepository.findById(id)
             .orElseThrow { RuntimeException("Produto não encontrado") }
 
-        // Use 'val' para imutáveis, apenas criando um novo objeto
         val produtoAtualizado = produtoExistente.copy(
             nome = novoProduto.nome,
             descricao = novoProduto.descricao,
