@@ -1,12 +1,13 @@
-// Produto.kt
+// Carro.kt
 package com.sinodal.staticsgame.model
 import jakarta.persistence.*
 
 @Entity
-data class Produto(
+data class Carro(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val nome: String,
-    val descricao: String,
+    val marca: String,
+    val modelo: String,
+    val ano: Int,
     val preco: Double
 )

@@ -3,23 +3,20 @@ package com.sinodal.staticsgame.service
 import com.sinodal.staticsgame.model.Produto
 import com.sinodal.staticsgame.repository.ProdutoRepository
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
-class ProdutoService(private val repo: ProdutoRepository) {
+class ProdutoService(private val produtoRepository: ProdutoRepository) {
 
-    fun listar(): List<Produto> = repo.findAll()
+    fun atualizarProduto(id: Long, novoProduto: Produto): Produto {
+        val produtoExistente = produtoRepository.findById(id)
+            .orElseThrow { RuntimeException("Produto não encontrado") }
 
-    fun buscar(id: Long): Optional<Produto> = repo.findById(id)
-
-    fun criar(produto: Produto): Produto = repo.save(produto)
-
-    fun atualizar(id: Long, produto: Produto): Produto {
-        val existente = repo.findById(id).orElseThrow { NoSuchElementException("Produto não encontrado: $id") }
-        existente.nome = produto.nome
-        existente.preco = produto.preco
-        return repo.save(existente)
+        // Use 'val' para imutáveis, apenas criando um novo objeto
+        val produtoAtualizado = produtoExistente.copy(
+            nome = novoProduto.nome,
+            descricao = novoProduto.descricao,
+            preco = novoProduto.preco
+        )
+        return produtoRepository.save(produtoAtualizado)
     }
-
-    fun deletar(id: Long) = repo.deleteById(id)
 }
